@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Node-Based IDE</title>
+
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.5/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.8.3/build/opensheetmusicdisplay.min.js"></script>
+    <!-- Node-specific libraries -->
+    <!-- js-beautify for Auto-Format Node -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify-html.min.js"></script>
+    <!-- jsPDF and html2canvas for PDF Render Node -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Tesseract.js for OCR Node (This is a large library, may take time to load) -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <!-- Typo.js for Spell Check Node (Dictionaries would need to be loaded separately) -->
+    <script src="https://unpkg.com/typo-js@1.2.0/typo.js"></script>
+    <!-- QR Code Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <!-- MathJax Configuration -->
+    <script>
+        // Configure MathJax before it loads for rendering LaTeX and MathML
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Link to External CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="dark">
+    <div id="main-container">
+        <div id="canvas">
+            <div id="world">
+                <svg id="connections">
+                    <defs>
+                        <linearGradient id="wireGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#5CAF60;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#4CAF50;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#3E9142;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <div id="selection-rect"></div>
+        </div>
+        <div id="properties-sidebar" class="collapsed">
+            <div class="sidebar-header">
+                <h3 class="sidebar-main-title">Properties</h3>
+                <button id="sidebar-toggle" class="mini-btn">&laquo;</button>
+            </div>
+            <div id="sidebar-content"></div>
+        </div>
+    </div>
+
+    <div class="top-toolbar">
+        <div class="toolbar-group">
+            <div class="dropdown">
+                <button class="btn">File</button>
+                <div class="dropdown-content">
+                    <a href="#" id="save-btn">Save Session</a>
+                    <a href="#" id="load-btn">Load Session</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <button class="btn">Showcases</button>
+                <div class="dropdown-content">
+                    <a href="#" onclick="ide.addShowcaseNode(); return false;">Rendering Features</a>
+                    <a href="#" onclick="ide.addShowcaseFindReplace(); return false;">Find & Replace</a>
+                    <a href="#" onclick="ide.addShowcaseCSVProcessing(); return false;">CSV Processing</a>
+                    <a href="#" onclick="ide.addShowcaseJSONTransform(); return false;">JSON Transform</a>
+                    <a href="#" onclick="ide.addShowcaseDataAnalysis(); return false;">Data Analysis</a>
+                    <a href="#" onclick="ide.addShowcaseComplexPipeline(); return false;">Complex Pipeline</a>
+                    <a href="#" onclick="ide.addShowcaseAutomation(); return false;">Automation Nodes</a>
+                    <a href="#" onclick="ide.addShowcasePublishing(); return false;">Publishing Nodes</a>
+                </div>
+            </div>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group">
+            <button class="btn" id="undo-btn" disabled>Undo</button>
+            <button class="btn" id="redo-btn" disabled>Redo</button>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group">
+            <button class="btn" id="add-node-btn">Add Node</button>
+            <button class="btn" onclick="ide.clearCanvas()">Clear</button>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group">
+                <div class="zoom-controls">
+                    <button class="btn" id="zoom-out">-</button>
+                    <span id="zoom-level">100%</span>
+                    <button class="btn" id="zoom-in">+</button>
+                    <button class="btn" id="zoom-reset">Reset</button>
+                </div>
+                <select class="theme-selector" onchange="changeTheme(this.value)">
+                    <option value="dark">Dark</option>
+                    <option value="maya">Maya</option>
+                    <option value="dracula">Dracula</option>
+                    <option value="tokyonight">Tokyo Night</option>
+                    <option value="monokai">Monokai</option>
+                    <option value="solarized">Solarized Dark</option>
+                </select>
+        </div>
+    </div>
+
+    <div class="bottom-toolbar">
+        <button class="tool-btn active" id="pointer-tool" title="Select Tool (V)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M14.5 13.5L12 21.5L9.5 13.5L2 11L9.5 8.5L12 0.5L14.5 8.5L22 11L14.5 13.5Z"/></svg>
+        </button>
+        <button class="tool-btn" id="rect-select-tool" title="Rectangle Select (M)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" style="stroke-dasharray: 6;"></rect>
+            </svg>
+        </button>
+    </div>
+
+    <input type="file" id="load-file-input" style="display: none;" accept=".json, .nodeide">
+    <input type="file" id="ocr-file-input" style="display: none;" accept="image/*">
+
+    <!-- Link to External JavaScript -->
+    <script src="script.js" defer></script>
+</body>
+</html>
