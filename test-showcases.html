@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Showcase System Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <h1>Node Showcase System Test</h1>
+    
+    <div class="test-section">
+        <h2>Showcase System Initialization</h2>
+        <p>Testing the showcase system initialization and menu population.</p>
+        <button class="test-button" onclick="testShowcaseSystem()">Test Showcase System</button>
+        <div id="init-status" class="status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Individual Showcase Tests</h2>
+        <p>Testing individual showcase methods to ensure they work correctly.</p>
+        <button class="test-button" onclick="testCSVShowcase()">Test CSV Processing</button>
+        <button class="test-button" onclick="testJSONShowcase()">Test JSON Transform</button>
+        <button class="test-button" onclick="testFindReplaceShowcase()">Test Find & Replace</button>
+        <div id="showcase-status" class="status"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Showcase Menu Structure</h2>
+        <p>Verifying the showcase menu is properly structured and categorized.</p>
+        <button class="test-button" onclick="inspectShowcaseMenu()">Inspect Menu Structure</button>
+        <div id="menu-status" class="status"></div>
+    </div>
+
+    <script src="showcases.js"></script>
+    <script>
+        let showcases;
+        let ide;
+
+        // Mock IDE object for testing
+        const mockIDE = {
+            clearCanvas: () => console.log('Mock: clearCanvas called'),
+            deserialize: (data) => console.log('Mock: deserialize called with', data),
+            recordState: (desc) => console.log('Mock: recordState called with', desc),
+            createNode: (type, x, y, options) => {
+                console.log('Mock: createNode called with', { type, x, y, options });
+                return { style: { width: '', height: '' } };
+            }
+        };
+
+        function testShowcaseSystem() {
+            try {
+                showcases = new NodeShowcases(mockIDE);
+                document.getElementById('init-status').innerHTML = 
+                    '<div class="success">✓ Showcase system initialized successfully</div>';
+                console.log('Showcase system initialized:', showcases);
+            } catch (error) {
+                document.getElementById('init-status').innerHTML = 
+                    '<div class="error">✗ Error initializing showcase system: ' + error.message + '</div>';
+                console.error('Error initializing showcase system:', error);
+            }
+        }
+
+        function testCSVShowcase() {
+            try {
+                if (!showcases) {
+                    throw new Error('Showcase system not initialized');
+                }
+                showcases.addShowcaseCSVProcessing();
+                document.getElementById('showcase-status').innerHTML = 
+                    '<div class="success">✓ CSV Processing showcase executed successfully</div>';
+            } catch (error) {
+                document.getElementById('showcase-status').innerHTML = 
+                    '<div class="error">✗ Error executing CSV showcase: ' + error.message + '</div>';
+                console.error('Error executing CSV showcase:', error);
+            }
+        }
+
+        function testJSONShowcase() {
+            try {
+                if (!showcases) {
+                    throw new Error('Showcase system not initialized');
+                }
+                showcases.addShowcaseJSONTransform();
+                document.getElementById('showcase-status').innerHTML = 
+                    '<div class="success">✓ JSON Transform showcase executed successfully</div>';
+            } catch (error) {
+                document.getElementById('showcase-status').innerHTML = 
+                    '<div class="error">✗ Error executing JSON showcase: ' + error.message + '</div>';
+                console.error('Error executing JSON showcase:', error);
+            }
+        }
+
+        function testFindReplaceShowcase() {
+            try {
+                if (!showcases) {
+                    throw new Error('Showcase system not initialized');
+                }
+                showcases.addShowcaseFindReplace();
+                document.getElementById('showcase-status').innerHTML = 
+                    '<div class="success">✓ Find & Replace showcase executed successfully</div>';
+            } catch (error) {
+                document.getElementById('showcase-status').innerHTML = 
+                    '<div class="error">✗ Error executing Find & Replace showcase: ' + error.message + '</div>';
+                console.error('Error executing Find & Replace showcase:', error);
+            }
+        }
+
+        function inspectShowcaseMenu() {
+            try {
+                if (!showcases) {
+                    throw new Error('Showcase system not initialized');
+                }
+                const allShowcases = showcases.getAllShowcases();
+                let menuStructure = '<div class="success"><h4>Showcase Menu Structure:</h4><ul>';
+                
+                for (const category in allShowcases) {
+                    menuStructure += `<li><strong>${category}</strong><ul>`;
+                    allShowcases[category].forEach(showcase => {
+                        menuStructure += `<li>${showcase.name}</li>`;
+                    });
+                    menuStructure += '</ul></li>';
+                }
+                menuStructure += '</ul></div>';
+                
+                document.getElementById('menu-status').innerHTML = menuStructure;
+            } catch (error) {
+                document.getElementById('menu-status').innerHTML = 
+                    '<div class="error">✗ Error inspecting showcase menu: ' + error.message + '</div>';
+                console.error('Error inspecting showcase menu:', error);
+            }
+        }
+
+        // Auto-initialize on page load
+        window.addEventListener('load', () => {
+            testShowcaseSystem();
+        });
+    </script>
+</body>
+</html>

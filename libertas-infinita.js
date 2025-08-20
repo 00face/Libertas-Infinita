@@ -239,7 +239,46 @@ class NodeBasedIDE {
 
         this.initLibraries();
         this.initEventListeners();
+        this.initShowcaseSystem();
         this.recordState("Initial State");
+    }
+
+    initShowcaseSystem() {
+        // Initialize the showcase system
+        this.showcases = new NodeShowcases(this);
+        this.populateShowcaseMenu();
+    }
+
+    populateShowcaseMenu() {
+        const showcaseMenu = document.getElementById('showcase-menu');
+        if (!showcaseMenu) return;
+
+        const allShowcases = this.showcases.getAllShowcases();
+        showcaseMenu.innerHTML = '';
+
+        for (const category in allShowcases) {
+            const categorySection = document.createElement('div');
+            categorySection.className = 'showcase-category';
+            categorySection.innerHTML = `<div class="showcase-category-title">${category}</div>`;
+
+            const showcaseList = document.createElement('div');
+            showcaseList.className = 'showcase-list';
+            
+            allShowcases[category].forEach(showcase => {
+                const showcaseItem = document.createElement('a');
+                showcaseItem.href = '#';
+                showcaseItem.textContent = showcase.name;
+                showcaseItem.className = 'showcase-item';
+                showcaseItem.onclick = (e) => {
+                    e.preventDefault();
+                    showcase.method();
+                };
+                showcaseList.appendChild(showcaseItem);
+            });
+            
+            categorySection.appendChild(showcaseList);
+            showcaseMenu.appendChild(categorySection);
+        }
     }
 
     async initLibraries() {
@@ -2342,95 +2381,7 @@ class NodeBasedIDE {
         this.recordState("Load Showcase");
     }
 
-    addShowcaseNode() { 
-        this.clearCanvas();
-        const showcaseContent = `
-# Rendering Showcase
 
-This node demonstrates the various rendering capabilities of this IDE.
-
----
-
-## Markdown Basics
-
-- **Bold Text:** **This is bold.** - *Italic Text:* *This is italic.* - \`Inline Code:\` \`console.log('hello');\`
-- [A Link](https://www.google.com)
-- > A blockquote for important notes.
-
-1.  Numbered List Item 1
-2.  Numbered List Item 2
-
----
-
-## LaTeX and MathML
-
-You can write inline LaTeX like the famous equation $E=mc^2$. Or display equations on their own line:
-
-$$\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}$$
-
----
-
-## Code Block Highlighting
-
-### JavaScript
-\`\`\`javascript
-// A simple function
-function greet(name) {
-   const message = \`Hello, \${name}!\`;
-   console.log(message);
-   return true;
-}
-
-greet('World');
-\`\`\`
-
----
-
-## Mermaid Diagrams
-
-\`\`\`mermaid
-graph TD;
-      A[Start] --> B{Is it working?};
-      B -- Yes --> C[Great!];
-      B -- No --> D[Fix it!];
-      D --> A;
-      C --> E[End];
-\`\`\`
-
----
-
-## MusicXML Sheet Music
-
-\`\`\`musicxml
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE score-partwise PUBLIC
-    "-//Recordare//DTD MusicXML 3.0 Partwise//EN"
-    "http://www.musicxml.org/dtds/partwise.dtd">
-<score-partwise version="3.0">
-  <part-list>
-    <score-part id="P1">
-      <part-name>Music</part-name>
-    </score-part>
-  </part-list>
-  <part id="P1">
-    <measure number="1">
-      <attributes>
-        <divisions>1</divisions>
-        <key><fifths>0</fifths></key>
-        <time><beats>4</beats><beat-type>4</beat-type></time>
-        <clef><sign>G</sign><line>2</line></clef>
-      </attributes>
-      <note><pitch><step>C</step><octave>4</octave></pitch><duration>4</duration><type>whole</type></note>
-    </measure>
-  </part>
-</score-partwise>
-\`\`\`
-`;
-
-        const showcaseNode = this.createNode('text', 50, 50, { text: showcaseContent });
-        showcaseNode.style.width = '600px';
-        showcaseNode.style.height = '700px';
-    }
 
     addTextNode() {
         this.createNode('text', 100, 100, { text: '# New Text Node' });
@@ -2865,5 +2816,4 @@ function changeTheme(theme) {
 // This ensures the script runs after the HTML document has been fully parsed.
 document.addEventListener('DOMContentLoaded', () => {
     ide = new NodeBasedIDE();
-    ide.addShowcaseAutomation();
 });
