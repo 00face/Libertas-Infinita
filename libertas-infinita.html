@@ -41,7 +41,7 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <!-- Link to External CSS -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="libertas-infinita.css">
 </head>
 <body data-theme="dark">
     <div id="main-container">
@@ -79,15 +79,8 @@
             </div>
             <div class="dropdown">
                 <button class="btn">Showcases</button>
-                <div class="dropdown-content">
-                    <a href="#" onclick="ide.addShowcaseNode(); return false;">Rendering Features</a>
-                    <a href="#" onclick="ide.addShowcaseFindReplace(); return false;">Find & Replace</a>
-                    <a href="#" onclick="ide.addShowcaseCSVProcessing(); return false;">CSV Processing</a>
-                    <a href="#" onclick="ide.addShowcaseJSONTransform(); return false;">JSON Transform</a>
-                    <a href="#" onclick="ide.addShowcaseDataAnalysis(); return false;">Data Analysis</a>
-                    <a href="#" onclick="ide.addShowcaseComplexPipeline(); return false;">Complex Pipeline</a>
-                    <a href="#" onclick="ide.addShowcaseAutomation(); return false;">Automation Nodes</a>
-                    <a href="#" onclick="ide.addShowcasePublishing(); return false;">Publishing Nodes</a>
+                <div class="dropdown-content" id="showcase-menu">
+                    <!-- Showcase menu will be populated dynamically -->
                 </div>
             </div>
         </div>
@@ -135,6 +128,8 @@
     <input type="file" id="ocr-file-input" style="display: none;" accept="image/*">
 
     <!-- Link to External JavaScript -->
-    <script src="script.js" defer></script>
+    <script src="showcases.js"></script>
+    <script src="verify-showcases.js"></script>
+    <script src="libertas-infinita.js" defer></script>
 </body>
 </html>
